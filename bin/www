@@ -4,6 +4,9 @@
  * Module dependencies.
  */
 
+
+//ESTO ES EL ARCHIVO DE ARRANQUE POR EL CUAL COMIENZA LA APLICACION Y EMPIEZA EL FUNCIONAMIENTO DEL PROGRAMA
+
 var app = require('../app');
 var debug = require('debug')('quiz-2020:server');
 var http = require('http');
