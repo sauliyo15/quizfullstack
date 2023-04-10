@@ -12,7 +12,6 @@ var favicon = require('serve-favicon'); //Necesario para servir el icono (npm in
 //Importacion de modulos con los ruters (atencion de rutas)
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 
 
 //Creacion de la aplicacion express
@@ -48,7 +47,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 //Instalacion de MWs de rutas
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
 
 // catch 404 and forward to error handler - Instalacion de MWs de Error
