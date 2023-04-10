@@ -6,6 +6,8 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+var favicon = require('serve-favicon'); //Necesario para servir el icono (npm install serve-favicon)
+
 
 //Importacion de modulos con los ruters (atencion de rutas)
 
@@ -23,6 +25,15 @@ app.set('views', path.join(__dirname, 'views'));
 
 //Instalacion de un renderizador de vistas
 app.set('view engine', 'ejs');
+
+
+//Instalacion del MW para servir el icono
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
+/*Truco: actualizar favicon para que se muestre en Google Chrome:
+  1.En el navegador escribir la ruta completa donde se encuentra el icono....localhost:3000/favicon.ico
+  2.Recargar la pagina con F5 o actualizar
+  3.Cerrar completamente el navegador y abrir de nuevo la pagina del proyecto*/
 
 
 //Instalacion de MWs genericos
