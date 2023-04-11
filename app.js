@@ -6,7 +6,9 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var favicon = require('serve-favicon'); //Necesario para servir el icono (npm install serve-favicon)
+var favicon = require('serve-favicon'); //Necesario para servir el icono mediante el MW (npm install serve-favicon)
+
+var partials = require('express-partials') //Necesario para introducir el MWs con el marco comun para todas las vistas deseadas (npm install express-partials)
 
 
 //Importacion de modulos con los ruters (atencion de rutas)
@@ -24,6 +26,9 @@ app.set('views', path.join(__dirname, 'views'));
 
 //Instalacion de un renderizador de vistas
 app.set('view engine', 'ejs');
+
+//Instalacion del MW para el marco de todas las vistas ejs
+app.use(partials());
 
 
 //Instalacion del MW para servir el icono
