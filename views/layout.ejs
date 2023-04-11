@@ -3,25 +3,45 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quiz</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <link rel="stylesheet" href="/stylesheets/style.css" />
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      media="only screen and (min-width: 800px) and (min-device-width: 600px)"
+      href="/stylesheets/wide.css"
+    />
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      media="only screen and (max-width: 480px)"
+      href="/stylesheets/smartphone.css"
+    />
   </head>
   <body>
-    <header>
-        <h1>The Quiz Site</h1>
-    </header>
-    <nav>
+    <div id="page">
+      <header class="main" id="mainHeader">
+        <h1>
+          <span class="no-narrow">The</span>
+          Quiz
+          <span class="no-narrow">Site</span>
+        </h1>
+      </header>
+      <nav class="main" id="mainNav" role="navigation">
         <a href="/">Home</a>
         <a href="/author">Author</a>
-    </nav>
-    <section>
-        <div>
-            <%- body %>
-        </div>
-    </section>
-    <footer>
+      </nav>
+      <section class="main" id="mainSection">
+        <%- body %>
+      </section>
+      <footer class="main" id="mainFooter">
         <a href="http://en.wikipedia.org/wiki/Quiz">What is a Quiz?</a>
-    </footer>
+      </footer>
+    </div>
   </body>
 </html>
