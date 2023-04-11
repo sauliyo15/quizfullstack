@@ -7,8 +7,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var favicon = require('serve-favicon'); //Necesario para servir el icono mediante el MW (npm install serve-favicon)
-
 var partials = require('express-partials') //Necesario para introducir el MWs con el marco comun para todas las vistas deseadas (npm install express-partials)
+var methodOverride = require('method-override'); //Necesario para poder manejar en HTML transacciones PUT y DELETE
 
 
 //Importacion de modulos con los ruters (atencion de rutas)
@@ -38,6 +38,10 @@ app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
   1.En el navegador escribir la ruta completa donde se encuentra el icono....localhost:3000/favicon.ico
   2.Recargar la pagina con F5 o actualizar
   3.Cerrar completamente el navegador y abrir de nuevo la pagina del proyecto*/
+
+
+//Instalamos el MWs para manejar las transacciones PUT y DELETE  
+app.use(methodOverride('_method', {methods: ["POST", "GET"]}));
 
 
 //Instalacion de MWs genericos
