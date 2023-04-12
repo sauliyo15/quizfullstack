@@ -20,7 +20,7 @@ router.get('/author', (req, res, next) => {
 
 
 //Autoload para las rutas que usen un parametro :quizId
-//router.param('quizId', quizController.load);
+router.param('quizId', quizController.load);
 
 //Rutas para el CRUD de los quizzes - HTML solo GET y POST  --> Method Override para gestionar PUT y DELETE
 router.get('/quizzes', quizController.index);
