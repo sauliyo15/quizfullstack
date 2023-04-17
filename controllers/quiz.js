@@ -25,3 +25,14 @@ exports.show = (req, res, next) => {
   //Llamamos al metod render con el objeto
   res.render("quizzes/show", { quiz });
 };
+
+
+//GET /quizzes
+exports.index = async (req, res, next) => {
+  try {
+    const quizzes = await models.Quiz.findAll();
+    res.render('quizzes/index.ejs', {quizzes});
+  } catch (error) {
+    next(error);
+  }
+}
