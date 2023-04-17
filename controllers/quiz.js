@@ -5,7 +5,7 @@ exports.load = async (req, res, next, quizId) => {
   try {
     const quiz = await models.Quiz.findByPk(quizId);
     if (quiz) {
-      req.load = {...req.load, quiz};
+      req.load = {...req.load, quiz}; //Spread (clonacion)
       next();
     }
     else {
@@ -14,4 +14,14 @@ exports.load = async (req, res, next, quizId) => {
   } catch (error) {
     next(error);
   }
+};
+
+
+//GET /quizzes/:quizId
+exports.show = (req, res, next) => {
+  //Obtenemos el objeto cargado en el metodo load que estara guardado en la request de la peticion
+  const { quiz } = req.load;
+
+  //Llamamos al metod render con el objeto
+  res.render("quizzes/show", { quiz });
 };
