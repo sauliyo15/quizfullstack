@@ -20,7 +20,7 @@ exports.load = async (req, res, next, quizId) => {
 //GET /quizzes/:quizId
 exports.show = (req, res, next) => {
   //Obtenemos el objeto cargado en el metodo load que estara guardado en la request de la peticion
-  const { quiz } = req.load;
+  const {quiz} = req.load;
 
   //Llamamos al metod render con el objeto
   res.render("quizzes/show", { quiz });
@@ -35,4 +35,21 @@ exports.index = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}
+};
+
+
+//GET /quizzes/:quizId/play
+exports.play = (req, res, next) => {
+
+  //Obtenemos la información del query
+  const {query} = req;
+
+  //Si hay algun contenido obtenemos el parametro oculto answer que genera el boton Try Again
+  const answer = query.answer || '';
+
+  //Cargamos el quiz ya que esta primitiva contiene el quizId y se habra cargado con el metodo load
+  const {quiz} = req.load;
+
+  //Renderizamos la vista con el quiz y con answer
+  res.render('quizzes/play.ejs', {quiz, answer});
+};
