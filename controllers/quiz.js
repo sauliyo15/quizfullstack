@@ -53,3 +53,23 @@ exports.play = (req, res, next) => {
   //Renderizamos la vista con el quiz y con answer
   res.render('quizzes/play.ejs', {quiz, answer});
 };
+
+
+//GET /quizzes/:quizId/check
+exports.check = (req, res, next) => {
+
+  //Obtenemos la información del query
+  const {query} = req;
+
+  //Si hay algun contenido obtenemos el parametro oculto answer que genera el boton Try Again
+  const answer = query.answer || '';
+
+  //Cargamos el quiz ya que esta primitiva contiene el quizId y se habra cargado con el metodo load
+  const {quiz} = req.load;
+
+  //Se comprueba si la respuesta es correcta
+  const result = answer.toLowerCase().trim() === quiz.answer.toLowerCase().trim();
+
+  //Renderizamos la vista con el quiz, con answer y con el resultado
+  res.render('quizzes/result.ejs', {quiz, result, answer});
+};

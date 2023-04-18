@@ -33,7 +33,7 @@ router.get('/quizzes/:quizId(\\d+)', quizController.show);
 
 //Rutas para jugar con los quizzes
 router.get('/quizzes/:quizId(\\d+)/play', quizController.play);
-//router.get('/quizzes/:quizId(\\d+)/check', quizController.check);
+router.get('/quizzes/:quizId(\\d+)/check', quizController.check);
 
 
 module.exports = router;
