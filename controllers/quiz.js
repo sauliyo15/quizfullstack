@@ -114,3 +114,52 @@ exports.create = async (req, res, next) => {
     }
   }
 };
+
+
+//GET /quizzes/:quizId/edit
+exports.edit = (req, res, next) => {
+
+  //Cargamos el quiz ya que esta primitiva contiene el quizId y se habra cargado con el metodo load
+  const {quiz} = req.load;
+
+  //Renderizamos la vista con el quiz
+  res.render('quizzes/edit.ejs', {quiz});
+};
+
+
+//PUT /quizzes/:quizId
+exports.update = async (req, res, next) => {
+
+  //Obtenemos los el body de la peticion
+  const {body} = req;
+
+  //Obtenemos el quiz (del modelo) precargado con el metodo load
+  const {quiz} = req.load;
+
+  //Actualizamos lo valores de la instancia del modelo quiz con los valores obtenidos del body
+  quiz.question = body.question;
+  quiz.answer = body.answer;
+
+  try {
+    //Ejecutamos la sentencia en la base de datos (solo guardamos los dos campos)
+    await quiz.save({fields: ["question", "answer"]});
+
+    //Redireccionamos a la vista para crear el quiz recien creado
+    res.redirect('/quizzes/' + quiz.id);
+  
+  } catch (error) {
+    //Captura de errores
+    if (error instanceof Sequelize.ValidationError) {
+      console.log('There are errors in the form:');
+      error.errors.forEach(({message}) => console.log(message));
+      res.render('quizzes/edit', {quiz});
+    }
+    else {
+      next(error);
+    }
+  }
+
+
+
+
+};
