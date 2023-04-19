@@ -73,3 +73,44 @@ exports.check = (req, res, next) => {
   //Renderizamos la vista con el quiz, con answer y con el resultado
   res.render('quizzes/result.ejs', {quiz, result, answer});
 };
+
+
+//GET /quizzes/new
+exports.new = (req, res, next) => {
+  
+  //Opcional ya que los cajetines del formulario de la vista se pueden configurar tambien con el contenido vacio
+  const quiz = {question: "", answer: ""};
+
+  //Renderizacion a la vista new
+  res.render('quizzes/new', {quiz});
+};
+
+
+//POST /quizzes/
+exports.create = async (req, res, next) => {
+
+  //Obtenemos los parametros del body de la peticion
+  const {question, answer} = req.body;
+
+  //Construimos una instancia no persitente con el modelo Quiz
+  let quiz = models.Quiz.build({question, answer});
+
+  try {
+    //Ejecutamos la sentencia en la base de datos (solo guardamos los dos campos)
+    quiz = await quiz.save({fields: ["question", "answer"]});
+
+    //Redireccionamos a la vista para crear el quiz recien creado
+    res.redirect('/quizzes/' + quiz.id);
+  
+  } catch (error) {
+    //Captura de errores
+    if (error instanceof Sequelize.ValidationError) {
+      console.log('There are errors in the form:');
+      error.errors.forEach(({message}) => console.log(message));
+      res.render('quizzes/new', {quiz});
+    }
+    else {
+      next(error);
+    }
+  }
+};
