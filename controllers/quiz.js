@@ -158,8 +158,20 @@ exports.update = async (req, res, next) => {
       next(error);
     }
   }
+};
 
 
+//DELETE /quizzes/:quizId
+exports.destroy = async (req, res, next) => {
 
+  try {
+    //Obtenemos la instancia del quiz cargado con el load y llamamos a su metodo destroy para eliminarlo de la BBDD
+    await req.load.quiz.destroy();
 
+    //Redireccionamos al indice
+    res.redirect('/quizzes');
+    
+  } catch (error) {
+    next(error);
+  }
 };
