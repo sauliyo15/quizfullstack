@@ -1,5 +1,7 @@
 const { models } = require("../models");
 
+const paginate = require('../helpers/paginate').paginate;
+
 //Autoload el quiz asociado a :quizId
 exports.load = async (req, res, next, quizId) => {
   try {
@@ -30,7 +32,27 @@ exports.show = (req, res, next) => {
 //GET /quizzes
 exports.index = async (req, res, next) => {
   try {
-    const quizzes = await models.Quiz.findAll();
+
+    //Obtenemos el numero de items que tiene la tabla de la base de datos
+    const count = await models.Quiz.count();
+
+    //Establecemos el numero de items que tendra cada pagina html
+    const items_per_page = 5;
+
+    //Extraemos el numero de pagina que llega en el query en el parametro pageno, (si es la primera vez que se entra al modulo sera la pagina 1)
+    const pageno = parseInt(req.query.pageno) || 1;
+
+    //Se genera el codigo html guardandolo en la variable paginate_control que se utilizara desde la vista layout.ejs
+    res.locals.paginate_control = paginate(count, items_per_page, pageno, req.url);
+
+    //Definimos las opciones para cargar los elementos deseados de la base de datos dependiento del numero de pagina al que navegamos y el numero de items
+    const findOptions = {
+      offset: items_per_page * (pageno - 1),
+      limit: items_per_page
+    };
+
+    //Llamamos a la base de datos con las opciones establecidas
+    const quizzes = await models.Quiz.findAll(findOptions);
     res.render('quizzes/index.ejs', {quizzes});
   } catch (error) {
     next(error);

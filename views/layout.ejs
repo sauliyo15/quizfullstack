@@ -41,6 +41,11 @@
       </nav>
       <section class="main" id="mainSection">
         <%- body %>
+
+        <% if (locals.paginate_control) { %>
+          <%- paginate_control %>
+        <% } %>
+
       </section>
       <footer class="main" id="mainFooter">
         <a href="http://en.wikipedia.org/wiki/Quiz" target="_blank">What is a Quiz?</a>
