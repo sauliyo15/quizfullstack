@@ -9,6 +9,8 @@ var logger = require('morgan');
 var favicon = require('serve-favicon'); //Necesario para servir el icono mediante el MW (npm install serve-favicon)
 var partials = require('express-partials') //Necesario para introducir el MWs con el marco comun para todas las vistas deseadas (npm install express-partials)
 var methodOverride = require('method-override'); //Necesario para poder manejar en HTML transacciones PUT y DELETE
+var session = require('express-session'); //Necesario para almacenar sesiones e intercambiar datos entre transacciones http
+var flash = require('express-flash'); //Necesario para mostrar mensajes flash almacenados en las sesiones
 
 
 //Importacion de modulos con los ruters (atencion de rutas)
@@ -51,6 +53,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+//Instalacion de MW para manejar las sesiones y los mensajes flash
+app.use(session({secret: "Quiz 2020", resave: false, saveUninitialized: true})); //secret: semilla de cifrado de la cookie, resave, saveUnitialized: fuerzan guardar siempre sesiones aunque no esten inicializadas
+app.use(flash());
 
 
 //Instalacion de MWs de rutas

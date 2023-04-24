@@ -129,15 +129,19 @@ exports.create = async (req, res, next) => {
     //Ejecutamos la sentencia en la base de datos (solo guardamos los dos campos)
     quiz = await quiz.save({ fields: ["question", "answer"] });
 
+    //Configuramos un mensaje flash para mostrarlo en la vista con el resultado exitoso de la operacion
+    req.flash('success', 'Quiz created successfully');
+
     //Redireccionamos a la vista para crear el quiz recien creado
     res.redirect("/quizzes/" + quiz.id);
   } catch (error) {
     //Captura de errores
     if (error instanceof Sequelize.ValidationError) {
-      console.log("There are errors in the form:");
-      error.errors.forEach(({ message }) => console.log(message));
+      req.flash('error', 'There are errors in the form: ');
+      error.errors.forEach(({ message }) => req.flash('error', message));
       res.render("quizzes/new", { quiz });
     } else {
+      req.flash('error', 'Error creating a new Quiz: ' +error.message);
       next(error);
     }
   }
@@ -168,15 +172,19 @@ exports.update = async (req, res, next) => {
     //Ejecutamos la sentencia en la base de datos (solo guardamos los dos campos)
     await quiz.save({ fields: ["question", "answer"] });
 
+    //Configuramos un mensaje flash para mostrarlo en la vista con el resultado exitoso de la operacion
+    req.flash('success', 'Quiz edited successfully');
+
     //Redireccionamos a la vista para crear el quiz recien creado
     res.redirect("/quizzes/" + quiz.id);
   } catch (error) {
     //Captura de errores
     if (error instanceof Sequelize.ValidationError) {
-      console.log("There are errors in the form:");
-      error.errors.forEach(({ message }) => console.log(message));
+      req.flash('error', 'There are errors in the form: ');
+      error.errors.forEach(({ message }) => req.flash('error', message));
       res.render("quizzes/edit", { quiz });
     } else {
+      req.flash('error', 'Error editing the Quiz: ' +error.message);
       next(error);
     }
   }
@@ -188,9 +196,14 @@ exports.destroy = async (req, res, next) => {
     //Obtenemos la instancia del quiz cargado con el load y llamamos a su metodo destroy para eliminarlo de la BBDD
     await req.load.quiz.destroy();
 
+    //Configuramos un mensaje flash para mostrarlo en la vista con el resultado exitoso de la operacion
+    req.flash('success', 'Quiz deleted successfully');
+
     //Redireccionamos al indice
     res.redirect("/quizzes");
   } catch (error) {
+    //Configuramos un mensaje flash para mostrarlo en la vista con el resultado fracasado de la operacion
+    req.flash('error', 'Error deleting the Quiz:' + error.message);
     next(error);
   }
 };
