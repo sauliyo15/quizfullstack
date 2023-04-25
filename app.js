@@ -11,7 +11,8 @@ var partials = require('express-partials') //Necesario para introducir el MWs co
 var methodOverride = require('method-override'); //Necesario para poder manejar en HTML transacciones PUT y DELETE
 var session = require('express-session'); //Necesario para almacenar sesiones e intercambiar datos entre transacciones http
 var flash = require('express-flash'); //Necesario para mostrar mensajes flash almacenados en las sesiones
-
+var SequelizeStore = require('connect-session-sequelize')(session.Store); //Necesario para configurar el almacenamiento de las sesiones en la base de datos
+var sequelize = require('./models'); //Necesario para configurar el almacenamiento de las sesiones en la base de datos
 
 //Importacion de modulos con los ruters (atencion de rutas)
 
@@ -54,9 +55,16 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//Definimos como sera el almacen de las sesiones
+var sessionStore = new SequelizeStore({
+  db: sequelize, //Base de datos a utilizar la que utilizar sequelize al importar models
+  table: "Session", //Tabla a utilizar
+  checkExpirationInterval: 15 * 60 * 1000, //Chequear cada 15 minutos (en milisegundos)
+  expiration: 4 * 60 * 60 * 1000 //La sesion expira cada 4 horas (en milisegundos)
+});
 
-//Instalacion de MW para manejar las sesiones y los mensajes flash
-app.use(session({secret: "Quiz 2020", resave: false, saveUninitialized: true})); //secret: semilla de cifrado de la cookie, resave, saveUnitialized: fuerzan guardar siempre sesiones aunque no esten inicializadas
+//Instalacion de MW para manejar las sesiones y los mensajes flash. Indicamos que se va a almacenar con sessionStore
+app.use(session({secret: "Quiz 2020", store: sessionStore, resave: false, saveUninitialized: true})); //secret: semilla de cifrado de la cookie, resave, saveUnitialized: fuerzan guardar siempre sesiones aunque no esten inicializadas
 app.use(flash());
 
 
