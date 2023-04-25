@@ -4,6 +4,28 @@ var router = express.Router();
 const quizController = require('../controllers/quiz');
 
 
+//Implementar rutas de restauracion (GO BACK)
+
+//Redireccion a la ruta almacenada (o raiz)
+function redirectBack (req, res, next) {
+  const url = req.session.backURL || "/";
+  delete req.session.backURL; //Se borra para limpiarlo
+  res.redirect(url);
+}
+
+router.get('/goback', redirectBack);
+
+
+//Almacenar la ruta
+function saveBack(req, res, next) {
+  req.session.backURL = req.url;
+  next();
+}
+
+//'Al volver atras', solo se podra volver atras a una de las siguientes rutas definidas
+router.get(['/', '/author', '/quizzes'], saveBack);
+
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Welcome to Quiz', message: 'The Web site where you can create you own games!' });

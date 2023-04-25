@@ -199,8 +199,8 @@ exports.destroy = async (req, res, next) => {
     //Configuramos un mensaje flash para mostrarlo en la vista con el resultado exitoso de la operacion
     req.flash('success', 'Quiz deleted successfully');
 
-    //Redireccionamos al indice
-    res.redirect("/quizzes");
+    //Redireccionamos a la pantalla anterior
+    res.redirect("/goback");
   } catch (error) {
     //Configuramos un mensaje flash para mostrarlo en la vista con el resultado fracasado de la operacion
     req.flash('error', 'Error deleting the Quiz:' + error.message);
