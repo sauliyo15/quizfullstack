@@ -57,5 +57,9 @@ router.delete('/quizzes/:quizId(\\d+)', quizController.destroy);
 router.get('/quizzes/:quizId(\\d+)/play', quizController.play);
 router.get('/quizzes/:quizId(\\d+)/check', quizController.check);
 
+//Rutas para jugar de forma aleatoria con los quizzes
+router.get('/quizzes/randomplay', quizController.randomPlay);
+router.get('/quizzes/randomcheck/:quizId(\\d+)', quizController.randomCheck);
+
 
 module.exports = router;

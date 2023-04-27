@@ -207,3 +207,102 @@ exports.destroy = async (req, res, next) => {
     next(error);
   }
 };
+
+//RANDOMPLAY GET /quizzes/randomplay
+exports.randomPlay = async (req, res, next) => {
+  try {
+
+    //Obtenemos el parametro de la sesion (si es la primera vez no existira y sera el array vacio)
+    req.session.randomPlayResolved = req.session.randomPlayResolved || [];
+
+    //Obtenemos el numero de quizzes que tenemos
+    const total = await models.Quiz.count();
+
+    //Con el total y la longitud del array obtenido, sabremos cuantos quizzes hay pendientes
+    const quedan = total - req.session.randomPlayResolved.length;
+
+    //Score sera la longitud del array/parametro obtenido de la sesion
+    score = req.session.randomPlayResolved.length;
+
+    //Si todavía quedan quizzes por resolver...
+    if (!quedan == 0) {
+
+      let quiz = null;
+
+      //Comprobamos si existe la propiedad (ultimoquiz)
+      if (req.session.ramdomPlayLastQuizId) {
+        //Si existe cargamos ese Quiz
+        quiz = await models.Quiz.findOne({
+          where: {'id': req.session.ramdomPlayLastQuizId}
+        });
+      }
+      //Sino...cargamos un quiz totalmente aleatorio
+      else {
+        quiz = await models.Quiz.findOne({
+          where: {'id': {[Sequelize.Op.notIn]: req.session.randomPlayResolved}},
+          offset: Math.floor(Math.random() * quedan) 
+        });
+      }
+
+      //Asignamos a la propiedad las quiz, el id del quiz cargado
+      req.session.ramdomPlayLastQuizId = quiz.id;
+      
+      //Renderizamos la vista con el quiz
+      res.render("quizzes/random_play.ejs", { quiz, score});
+    }
+    //Sino quedan Quizzes por resolver...
+    else {
+      //Se borra la propiedad/array por si se vuelve a empezar que se genere de nuevo
+      delete req.session.randomPlayResolved;
+
+      //Se renderiza la vista correspondiente
+      res.render("quizzes/random_nomore.ejs", {score});
+    }
+
+  } catch (error) {
+    //Configuramos un mensaje flash para mostrarlo en la vista con el resultado fracasado de la operacion
+    req.flash('error', 'Accediendo a Randomplay: ' + error.message);
+    next(error);
+  }
+}
+
+//RANDOMCHECK GET /quizzes/randomcheck/:quizId
+exports.randomCheck = async (req, res, next) => {
+
+  //Borramos la propiedad lastquizId, ya que cuando el usuario comprueba un quiz, deja de tener sentido
+  delete req.session.ramdomPlayLastQuizId;
+
+  //Obtenemos la información del query
+  const { query } = req;
+
+  //Si hay algun contenido obtenemos el parametro oculto answer que genera el boton Try Again
+  const answer = query.answer || "";
+
+  //Cargamos el quiz ya que esta primitiva contiene el quizId y se habra cargado con el metodo load
+  const { quiz } = req.load;
+
+  //Se comprueba si la respuesta es correcta
+  const result = answer.toLowerCase().trim() === quiz.answer.toLowerCase().trim();
+
+  //Obtenemos la puntuacion a partir de la longitud del array de resueltos
+  let score = req.session.randomPlayResolved.length;
+
+  //Si la respuesta es correcta...
+  if (result) {
+
+    //Se añade el id del quiz al array de resueltos
+    req.session.randomPlayResolved.push(quiz.id);
+
+    //Incrementamos la puntuacion
+    score++;
+  }
+  //Si la respuesta es incorrecta...
+  else {
+  
+    //Se borra la propiedad/array por si se vuelve a empezar que se genere de nuevo
+    delete req.session.randomPlayResolved;
+  }
+
+  //Renderizamoa a la vista correspondiente con los parametros requeridos
+  res.render("quizzes/random_result.ejs", { score, result, answer });
+}
