@@ -24,7 +24,7 @@ function saveBack(req, res, next) {
 }
 
 //'Al volver atras', solo se podra volver atras a una de las siguientes rutas definidas
-router.get(['/', '/author', '/quizzes'], saveBack);
+router.get(['/', '/author', '/quizzes', '/users'], saveBack);
 
 
 /* GET home page. */
@@ -45,6 +45,9 @@ router.get('/author', (req, res, next) => {
 //Autoload para las rutas que usen un parametro :quizId, se benefician de este metodo los controladores cuya ruta contenga el quizId
 router.param('quizId', quizController.load);
 
+//Autoload para las rutas que usen un parametro :userId, se benefician de este metodo los controladores cuya ruta contenga el userId
+router.param('userId', userController.load);
+
 //Rutas para el CRUD de los quizzes - HTML solo GET y POST  --> Method Override para gestionar PUT y DELETE
 router.get('/quizzes', quizController.index);
 router.get('/quizzes/:quizId(\\d+)', quizController.show);
@@ -61,6 +64,15 @@ router.get('/quizzes/:quizId(\\d+)/check', quizController.check);
 //Rutas para jugar de forma aleatoria con los quizzes
 router.get('/quizzes/randomplay', quizController.randomPlay);
 router.get('/quizzes/randomcheck/:quizId(\\d+)', quizController.randomCheck);
+
+//Rutas para el CRUD de los users - HTML solo GET y POST  --> Method Override para gestionar PUT y DELETE
+//router.get('/users', userController.index);
+router.get('/users/:userId(\\d+)', userController.show);
+/*router.get('/users/new', userController.new);
+router.post('/users', userController.create);
+router.get('/users/:userId(\\d+)/edit', userController.edit);
+router.put('/users/:userId(\\d+)', userController.update);
+router.delete('/users/:userId(\\d+)', userController.destroy);*/
 
 
 module.exports = router;

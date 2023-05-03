@@ -11,6 +11,7 @@ exports.load = async (req, res, next, quizId) => {
       req.load = { ...req.load, quiz }; //Spread (clonacion)
       next();
     } else {
+      req.flash('error', 'There is no quizz with id=' + quizId + '.');
       throw new Error("There is no quiez with id=" + quizId);
     }
   } catch (error) {
