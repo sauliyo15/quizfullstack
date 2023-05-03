@@ -66,7 +66,7 @@ router.get('/quizzes/randomplay', quizController.randomPlay);
 router.get('/quizzes/randomcheck/:quizId(\\d+)', quizController.randomCheck);
 
 //Rutas para el CRUD de los users - HTML solo GET y POST  --> Method Override para gestionar PUT y DELETE
-//router.get('/users', userController.index);
+router.get('/users', userController.index);
 router.get('/users/:userId(\\d+)', userController.show);
 /*router.get('/users/new', userController.new);
 router.post('/users', userController.create);
