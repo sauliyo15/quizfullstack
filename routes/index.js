@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const quizController = require('../controllers/quiz');
+const userController = require('../controllers/user');
 
 
 //Implementar rutas de restauracion (GO BACK)
