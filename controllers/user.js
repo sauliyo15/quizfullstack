@@ -1,5 +1,6 @@
 const { models } = require("../models");
 const paginate = require("../helpers/paginate").paginate;
+const Sequelize = require("sequelize");
 
 //Autoload el user asociado a :userId
 exports.load = async (req, res, next, userId) => {
@@ -8,8 +9,7 @@ exports.load = async (req, res, next, userId) => {
     if (user) {
       req.load = { ...req.load, user }; //Spread (clonacion)
       next();
-    } 
-    else {
+    } else {
       req.flash("error", "There is no user with id=" + userId + ".");
       throw new Error("No exist userId=" + userId);
     }
@@ -29,37 +29,89 @@ exports.show = (req, res, next) => {
 
 //GET /users
 exports.index = async (req, res, next) => {
-    
-    try {
-      //Obtenemos el numero de items que tiene la tabla de la base de datos
-      const count = await models.User.count();
-  
-      //Establecemos el numero de items que tendra cada pagina html
-      const items_per_page = 5;
-  
-      //Extraemos el numero de pagina que llega en el query en el parametro pageno, (si es la primera vez que se entra al modulo sera la pagina 1)
-      const pageno = parseInt(req.query.pageno) || 1;
-  
-      //Se genera el codigo html guardandolo en la variable paginate_control que se utilizara desde la vista layout.ejs
-      res.locals.paginate_control_users = paginate(
-        count,
-        items_per_page,
-        pageno,
-        req.url
-      );
-  
-      //Definimos las opciones para cargar los elementos deseados de la base de datos dependiento del numero de pagina al que navegamos y el numero de items
-      const findOptions = {
-        offset : items_per_page * (pageno - 1),
-        limit : items_per_page,
-        order: ['username']
-      };
-  
-      //Llamamos a la base de datos con las opciones establecidas
-      const users = await models.User.findAll(findOptions);
-      res.render("users/index", { users });
-      
-    } catch (error) {
-      next(error);
+  try {
+    //Obtenemos el numero de items que tiene la tabla de la base de datos
+    const count = await models.User.count();
+
+    //Establecemos el numero de items que tendra cada pagina html
+    const items_per_page = 5;
+
+    //Extraemos el numero de pagina que llega en el query en el parametro pageno, (si es la primera vez que se entra al modulo sera la pagina 1)
+    const pageno = parseInt(req.query.pageno) || 1;
+
+    //Se genera el codigo html guardandolo en la variable paginate_control que se utilizara desde la vista layout.ejs
+    res.locals.paginate_control_users = paginate(
+      count,
+      items_per_page,
+      pageno,
+      req.url
+    );
+
+    //Definimos las opciones para cargar los elementos deseados de la base de datos dependiento del numero de pagina al que navegamos y el numero de items
+    const findOptions = {
+      offset: items_per_page * (pageno - 1),
+      limit: items_per_page,
+      order: ["username"],
+    };
+
+    //Llamamos a la base de datos con las opciones establecidas
+    const users = await models.User.findAll(findOptions);
+    res.render("users/index", { users });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//GET /users/new
+exports.new = (req, res, next) => {
+  //Opcional ya que los cajetines del formulario de la vista se pueden configurar tambien con el contenido vacio
+  const user = { username: "", password: "" };
+
+  //Renderizacion a la vista new
+  res.render("users/new", { user });
+};
+
+//POST /users/
+exports.create = async (req, res, next) => {
+  //Obtenemos los parametros del body de la peticion
+  const { username, password } = req.body;
+
+  //Construimos una instancia no persitente con el modelo User
+  let user = models.User.build({ username, password });
+
+  //Comprobacion de contraseña vacia
+  if (!password) {
+    //Configuramos un mensaje flash
+    req.flash("error", "Password must not be empty.");
+
+    //Renderizamos a la vista con los datos del usuario que todavia no ha sido creado
+    return res.render("users/new", { user });
+  }
+
+  try {
+    //Ejecutamos la sentencia en la base de datos (solo guardamos los dos campos)
+    user = await user.save({ fields: ["username", "password", "salt"] });
+
+    //Configuramos un mensaje flash para mostrarlo en la vista con el resultado exitoso de la operacion
+    req.flash("success", "User created successfully");
+
+    //Redireccionamos a la vista para ver el usuario recien creado
+    res.redirect("/users/" + user.id);
+  } catch (error) {
+    //Captura de errores
+    if (error instanceof Sequelize.UniqueConstraintError) {
+      req.flash("error", `User "${username}" already exists.`);
+      res.render("users/new", { user });
+    } 
+    else {
+      if (error instanceof Sequelize.ValidationError) {
+        req.flash("error", "There are errors in the form:");
+        error.errors.forEach(({ message }) => req.flash("error", message));
+        res.render("users/new", { user });
+      } 
+      else {
+        next(error);
+      }
     }
-  };
+  }
+};
