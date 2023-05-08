@@ -72,6 +72,6 @@ router.get('/users/new', userController.new);
 router.post('/users', userController.create);
 router.get('/users/:userId(\\d+)/edit', userController.edit);
 router.put('/users/:userId(\\d+)', userController.update);
-//router.delete('/users/:userId(\\d+)', userController.destroy);
+router.delete('/users/:userId(\\d+)', userController.destroy);
 
 module.exports = router;

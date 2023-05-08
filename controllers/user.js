@@ -167,3 +167,21 @@ exports.update = async (req, res, next) => {
     }
   }
 };
+
+//DELETE /users/:userId
+exports.destroy = async (req, res, next) => {
+  try {
+    //Obtenemos la instancia del quiz cargado con el load y llamamos a su metodo destroy para eliminarlo de la BBDD
+    await req.load.user.destroy();
+
+    //Configuramos un mensaje flash para mostrarlo en la vista con el resultado exitoso de la operacion
+    req.flash('success', 'User deleted successfully');
+
+    //Redireccionamos a la pantalla anterior
+    res.redirect("/goback");
+  } catch (error) {
+    //Configuramos un mensaje flash para mostrarlo en la vista con el resultado fracasado de la operacion
+    req.flash('error', 'Error deleting the User:' + error.message);
+    next(error);
+  }
+};
