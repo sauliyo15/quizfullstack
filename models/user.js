@@ -24,6 +24,10 @@ module.exports = function (sequelize, DataTypes) {
         return `${this.profileName} (${accountTypes[this.accountTypeId]})`;
       }
     }
+
+    verifyPassword(password) {
+      return crypt.encryptPassword(password, this.salt) === this.password;
+  }
   }
 
   //Modelo para la tabla de usuers: Users

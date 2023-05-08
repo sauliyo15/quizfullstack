@@ -3,6 +3,15 @@ var router = express.Router();
 
 const quizController = require('../controllers/quiz');
 const userController = require('../controllers/user');
+const sessionController = require('../controllers/session');
+
+//MWs para manejar la gestión de Login y logout
+
+
+router.all('*', sessionController.checkLoginExpires);
+router.get('/login', sessionController.new);
+router.post('/login', sessionController.create, sessionController.createLoginExpires);//MWs en serie para crear la sesion en dos pasos
+router.delete('/login', sessionController.destroy);
 
 
 //Implementar rutas de restauracion (GO BACK)

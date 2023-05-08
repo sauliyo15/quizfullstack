@@ -13,6 +13,8 @@ var session = require('express-session'); //Necesario para almacenar sesiones e 
 var flash = require('express-flash'); //Necesario para mostrar mensajes flash almacenados en las sesiones
 var SequelizeStore = require('connect-session-sequelize')(session.Store); //Necesario para configurar el almacenamiento de las sesiones en la base de datos
 var sequelize = require('./models'); //Necesario para configurar el almacenamiento de las sesiones en la base de datos
+var passport = require('passport'); //Necesario para gestionar el login de los usuarios
+
 
 //Importacion de modulos con los ruters (atencion de rutas)
 
@@ -66,6 +68,25 @@ var sessionStore = new SequelizeStore({
 //Instalacion de MW para manejar las sesiones y los mensajes flash. Indicamos que se va a almacenar con sessionStore
 app.use(session({secret: "Quiz 2020", store: sessionStore, resave: false, saveUninitialized: true})); //secret: semilla de cifrado de la cookie, resave, saveUnitialized: fuerzan guardar siempre sesiones aunque no esten inicializadas
 app.use(flash());
+
+
+//Instalacion de MW para manejar los login de los usuarios
+
+//Inicializa Passport y define loginUser como la propiedad de req que contiene al usuario autenticado si existe.
+app.use(passport.initialize({userProperty: 'loginUser'}));
+
+//Conecta la session de login con la de cliente.
+app.use(passport.session());
+
+//req.loginUser se copia a res.locals.loginUser para hacerlo visible en todas vistas (para layout.ejs).
+app.use(function(req, res, next) {
+  res.locals.loginUser = req.loginUser && {
+    id: req.loginUser.id,
+    displayName: req.loginUser.displayName,
+    isAdmin: req.loginUser.isAdmin
+  };
+  next();
+});
 
 
 //Instalacion de MWs de rutas

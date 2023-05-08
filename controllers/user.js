@@ -95,8 +95,16 @@ exports.create = async (req, res, next) => {
     //Configuramos un mensaje flash para mostrarlo en la vista con el resultado exitoso de la operacion
     req.flash("success", "User created successfully");
 
-    //Redireccionamos a la vista para ver el usuario recien creado
-    res.redirect("/users/" + user.id);
+    //Si existe login de usuario...
+    if (req.loginUser) {
+      //Redireccionamos a la vista para ver el usuario recien creado
+      res.redirect("/users/" + user.id);
+    }
+    //Sino existe sesion de usuario redireccionamos a login por si el recien creado, quiere autenticarse
+    else {
+      //Redireccionamos a la vista login
+      res.redirect("/login");
+    }
   } catch (error) {
     //Captura de errores
     if (error instanceof Sequelize.UniqueConstraintError) {
@@ -171,6 +179,16 @@ exports.update = async (req, res, next) => {
 //DELETE /users/:userId
 exports.destroy = async (req, res, next) => {
   try {
+
+    //Comprobar si el usuario que se va a borrar de la base de datos tiene tambien sesion iniciada para borrarla
+    if (req.loginUser && req.loginUser.id === req.load.user.id) {
+      //req.logout(); //OJO desde la version 0.6 de passport se necesita un callback
+      req.logout(function(err) {
+        if (err) { return next(err); }
+      });
+      delete req.session.loginExpires;
+    }
+
     //Obtenemos la instancia del quiz cargado con el load y llamamos a su metodo destroy para eliminarlo de la BBDD
     await req.load.user.destroy();
 

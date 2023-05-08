@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node ./bin/www",
     "super": "supervisor ./bin/www",
-    "test" : "mocha",
+    "test": "mocha",
     "migrate": "sequelize db:migrate --url sqlite://$(pwd)/db.sqlite",
     "seed": "sequelize db:seed:all --url sqlite://$(pwd)/db.sqlite",
     "migrate_win": "sequelize db:migrate --url sqlite://%cd%/db.sqlite",
@@ -27,6 +27,8 @@
     "method-override": "^3.0.0",
     "mocha": "^10.2.0",
     "morgan": "~1.9.1",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0",
     "sequelize": "^5.21.5",
     "sequelize-cli": "^5.5.1",
     "serve-favicon": "^2.5.0",
