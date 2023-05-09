@@ -3,6 +3,16 @@ const {models} = require("../models");
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy; //Necesario para manejar los usuarios locales
 
+//Definicion de las credenciales de entorno a partir de las variables de entorno que haya definidas
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+
+//Definicion de la direccion de la aplicacion
+const CALLBACK_BASE_URL = process.env.CALLBACK_BASE_URL || "http://localhost:3000";
+
+//Definicion de las estrategias especificas de cada uno de los portales
+const GitHubStrategy = GITHUB_CLIENT_ID && GITHUB_CLIENT_SECRET && require('passport-github2').Strategy;
+
 //5 minutos en milisegundos
 const maxIdleTime = 5*60*1000;
 
@@ -37,8 +47,10 @@ exports.checkLoginExpires = (req, res, next) => {
 
 // GET /login --Login form
 exports.new = async (req, res, next) => {
-    //Se renderiza a la nueva vista con el formulario de login
-    res.render('session/new.ejs');
+    //Se renderiza a la nueva vista con el formulario de login, indicando tambien si hay autenticacion con alguno de los portales externos
+    res.render('session/new.ejs', {
+        loginWithGitHub: !!GitHubStrategy,
+    });
 }
 
 // POST /login
@@ -118,3 +130,47 @@ passport.use(new LocalStrategy(
         }
     }
 ));
+
+
+// Use the GitHubStrategy within Passport.
+//   Strategies in Passport require a `verify` function, which accept
+//   credentials (in this case, an accessToken, refreshToken, and GitHub
+//   profile), and invoke a callback with a user object.
+GitHubStrategy && passport.use(new GitHubStrategy({
+    clientID: GITHUB_CLIENT_ID,
+    clientSecret: GITHUB_CLIENT_SECRET,
+    callbackURL: `${CALLBACK_BASE_URL}/auth/github/callback`
+},
+async (accessToken, refreshToken, profile, done) => {
+    try {
+        // The returned GitHub profile represent the logged-in user.
+        // I must associate the GitHub account with a user record in the database,
+        // and return that user.
+        const [user, created] = await models.User.findOrCreate({
+            where: {
+                accountTypeId: models.User.accountTypeId("github"),
+                profileId: profile.id
+            },
+            defaults: {
+                profileName: profile.username
+            }
+        });
+        done(null, user);
+    } catch(error) {
+        done(error, null);
+    }
+}));
+
+
+// GET /auth/github
+exports.authGitHub = GitHubStrategy && passport.authenticate('github', {scope: ['user']});
+
+// GET /auth/github/callback
+exports.authGitHubCB = GitHubStrategy && passport.authenticate(
+    'github',
+    {
+        failureRedirect: '/auth/github',
+        successFlash: 'Welcome!',
+        failureFlash: 'Authentication has failed. Retry it again.'
+    }
+);

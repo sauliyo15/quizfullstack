@@ -7,11 +7,18 @@ const sessionController = require('../controllers/session');
 
 //MWs para manejar la gestión de Login y logout
 
-
 router.all('*', sessionController.checkLoginExpires);
 router.get('/login', sessionController.new);
 router.post('/login', sessionController.create, sessionController.createLoginExpires);//MWs en serie para crear la sesion en dos pasos
 router.delete('/login', sessionController.destroy);
+
+//Condicionales para crear los MWs de login de cada uno de los portales (si sus variables de entorno estan definidas)
+
+// Authenticate with OAuth 2.0 at Github
+if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+  router.get('/auth/github',sessionController.authGitHub);
+  router.get('/auth/github/callback', sessionController.authGitHubCB, sessionController.createLoginExpires);
+}
 
 
 //Implementar rutas de restauracion (GO BACK)
@@ -79,8 +86,8 @@ router.get('/users', userController.index);
 router.get('/users/:userId(\\d+)', userController.show);
 router.get('/users/new', userController.new);
 router.post('/users', userController.create);
-router.get('/users/:userId(\\d+)/edit', userController.edit);
-router.put('/users/:userId(\\d+)', userController.update);
+router.get('/users/:userId(\\d+)/edit', userController.isLocalRequired, userController.edit);//Solo se puede editar el usuario si es local: comprobacion
+router.put('/users/:userId(\\d+)', userController.isLocalRequired, userController.update); //Solo se puede editar el usuario si es local: comprobacion
 router.delete('/users/:userId(\\d+)', userController.destroy);
 
 module.exports = router;

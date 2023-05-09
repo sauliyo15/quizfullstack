@@ -203,3 +203,14 @@ exports.destroy = async (req, res, next) => {
     next(error);
   }
 };
+
+//Comprobacion si la cuenta de usuario es local para proceder con las siguiente operacion (update user)
+exports.isLocalRequired = (req, res, next) => {
+
+  if (!req.load.user.accountTypeId) {
+      next();
+  } else {
+      console.log('Prohibited operation: The user account must be local.');
+      res.send(403);
+  }
+};

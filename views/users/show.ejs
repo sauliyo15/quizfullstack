@@ -6,7 +6,9 @@
 </ul>
 
 <p>
-    <a href="/users/<%= user.id %>/edit" class="button">Edit</a>
+    <% if (!user.accountTypeId) { %>
+        <a href="/users/<%= user.id %>/edit" class="button">Edit</a>
+    <% } %> 
     <a href="/users/<%= user.id %>?_method=DELETE" onclick="return confirm('Delete user: <%= user.displayName %>');" class="button">Delete</a>
 </p>
 

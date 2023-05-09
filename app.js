@@ -14,6 +14,7 @@ var flash = require('express-flash'); //Necesario para mostrar mensajes flash al
 var SequelizeStore = require('connect-session-sequelize')(session.Store); //Necesario para configurar el almacenamiento de las sesiones en la base de datos
 var sequelize = require('./models'); //Necesario para configurar el almacenamiento de las sesiones en la base de datos
 var passport = require('passport'); //Necesario para gestionar el login de los usuarios
+require('dotenv').config(); //Necesario para gestionar las variables de entorno
 
 
 //Importacion de modulos con los ruters (atencion de rutas)
