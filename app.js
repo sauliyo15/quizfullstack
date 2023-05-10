@@ -15,6 +15,7 @@ var SequelizeStore = require('connect-session-sequelize')(session.Store); //Nece
 var sequelize = require('./models'); //Necesario para configurar el almacenamiento de las sesiones en la base de datos
 var passport = require('passport'); //Necesario para gestionar el login de los usuarios
 require('dotenv').config(); //Necesario para gestionar las variables de entorno
+var redirectToHTTPS = require('express-http-to-https').redirectToHTTPS; //Necesario para la redireccion a HTTPS
 
 
 //Importacion de modulos con los ruters (atencion de rutas)
@@ -88,6 +89,10 @@ app.use(function(req, res, next) {
   };
   next();
 });
+
+
+//MW que excluye redirigir cuando el servidor esta instalado en localhost en cualquier puerto
+app.use(redirectToHTTPS([/localhost:(\d{4})/], [], 301));
 
 
 //Instalacion de MWs de rutas
