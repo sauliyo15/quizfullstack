@@ -4,12 +4,12 @@
     <li>User name: <b><%= user.displayName %></b></li>
     <li>Administrator: <b><%= user.isAdmin ? "Yes" : "No" %></b></li>
 </ul>
-
-<p>
-    <% if (!user.accountTypeId) { %>
-        <a href="/users/<%= user.id %>/edit" class="button">Edit</a>
-    <% } %> 
-    <a href="/users/<%= user.id %>?_method=DELETE" onclick="return confirm('Delete user: <%= user.displayName %>');" class="button">Delete</a>
-</p>
-
+<% if (locals.loginUser && (locals.loginUser.isAdmin || locals.loginUser.id === user.id)) { %>
+    <p>
+        <% if (!user.accountTypeId) { %>
+            <a href="/users/<%= user.id %>/edit" class="button">Edit</a>
+        <% } %> 
+        <a href="/users/<%= user.id %>?_method=DELETE" onclick="return confirm('Delete user: <%= user.displayName %>');" class="button">Delete</a>
+    </p>
+<% } %> 
 <a href="/goback" class="button">Go back</a>
