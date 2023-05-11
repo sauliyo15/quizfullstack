@@ -70,7 +70,8 @@ router.param('userId', userController.load);
 router.get('/quizzes', quizController.index);
 
 router.get('/quizzes/:quizId(\\d+)',
-  sessionController.loginRequired, 
+  sessionController.loginRequired,
+  quizController.adminOrAuthorRequired, 
   quizController.show);
 
 router.get('/quizzes/new',
@@ -82,15 +83,18 @@ router.post('/quizzes',
   quizController.create);
 
 router.get('/quizzes/:quizId(\\d+)/edit',
-  sessionController.loginRequired, 
+  sessionController.loginRequired,
+  quizController.adminOrAuthorRequired,  
   quizController.edit);
 
 router.put('/quizzes/:quizId(\\d+)', 
-  sessionController.loginRequired, 
+  sessionController.loginRequired,
+  quizController.adminOrAuthorRequired,  
   quizController.update);
 
 router.delete('/quizzes/:quizId(\\d+)', 
   sessionController.loginRequired,
+  quizController.adminOrAuthorRequired, 
   quizController.destroy);
 
 //Rutas para jugar con los quizzes

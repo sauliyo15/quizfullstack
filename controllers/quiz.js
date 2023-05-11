@@ -6,7 +6,7 @@ const Op = Sequelize.Op;
 //Autoload el quiz asociado a :quizId
 exports.load = async (req, res, next, quizId) => {
   try {
-    const quiz = await models.Quiz.findByPk(quizId);
+    const quiz = await models.Quiz.findByPk(quizId, {include: [{model: models.User, as: 'author'}]});//Se incorpora tambien la busqueda del author
     if (quiz) {
       req.load = { ...req.load, quiz }; //Spread (clonacion)
       next();
@@ -66,6 +66,9 @@ exports.index = async (req, res, next) => {
     findOptions.offset = items_per_page * (pageno - 1);
     findOptions.limit = items_per_page;
 
+    //Se incorpora la busqueda del author
+    findOptions.include = [{model: models.User, as: 'author'}];
+
     //Llamamos a la base de datos con las opciones establecidas
     const quizzes = await models.Quiz.findAll(findOptions);
     res.render("quizzes/index.ejs", { quizzes, search });
@@ -124,7 +127,7 @@ exports.create = async (req, res, next) => {
   const { question, answer } = req.body;
 
   //Construimos una instancia no persitente con el modelo Quiz
-  let quiz = models.Quiz.build({ question, answer });
+  let quiz = models.Quiz.build({ question, answer});
 
   try {
     //Ejecutamos la sentencia en la base de datos (solo guardamos los dos campos)
@@ -306,4 +309,19 @@ exports.randomCheck = async (req, res, next) => {
 
   //Renderizamoa a la vista correspondiente con los parametros requeridos
   res.render("quizzes/random_result.ejs", { score, result, answer });
+}
+
+//MW que comprueba si el usuario es administrador o el propietario del quiz a manipular
+exports.adminOrAuthorRequired = (req, res, next) => {
+  const isAdmin = !!req.loginUser.isAdmin;
+  const isAuthor = req.load.quiz.authorId === req.loginUser.id;
+
+  //Si es el administrador o propietario se permite continuar
+  if (isAdmin || isAuthor) {
+    next();
+  }
+  else {
+    console.log('Prohibited operation: The logged in user is not the author of the quiz, nor an administrator.');
+    res.send(403);
+  }
 }

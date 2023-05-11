@@ -9,13 +9,17 @@ const sequelize = new Sequelize(url);
 //Importar el modelo Quiz y Session - OJO! IMPORTANTE este metodo no funciona a partir de la version 6 de sequelize/sequelize-cli
 
 //Quiz model
-sequelize.import(path.join(__dirname, 'quiz'));
+const Quiz = sequelize.import(path.join(__dirname, 'quiz'));
 
 //Session model
 sequelize.import(path.join(__dirname, 'session'));
 
 //User model
-sequelize.import(path.join(__dirname, 'user'));
+const User = sequelize.import(path.join(__dirname,'user'));
 
+
+// Relation 1-to-N between User and Quiz:
+User.hasMany(Quiz, {as: 'quizzes', foreignKey: 'authorId'});
+Quiz.belongsTo(User, {as: 'author', foreignKey: 'authorId'});
 
 module.exports = sequelize;
