@@ -174,3 +174,34 @@ exports.authGitHubCB = GitHubStrategy && passport.authenticate(
         failureFlash: 'Authentication has failed. Retry it again.'
     }
 );
+
+
+//MW que verifica que un usuario esta logueado en la pagina
+exports.loginRequired = async (req, res, next) => {
+    //Si esta logueado se podra continuar con el siguiente MW
+    if (req.loginUser) {
+        next();
+    }
+    //Sino, se configura un mensaje flash y se redirecciona a la pagina de login
+    else {
+        req.flash("info", "Login required: log in and retry.");
+        res.redirect('/login');
+    } 
+}
+
+
+//MW que verifica que el usuario logueado es administrador ó que el usuario logueado es el mismo sobre el cual se lanza la operacion
+exports.adminOrMyselfRequired = async (req, res, next) => {
+    const isAdmin = !!req.loginUser.isAdmin;
+    const isMyself = req.load.user.id === req.loginUser.id;
+    
+    //Si es el administrador o uno mismo se puede continuar
+    if (isAdmin || isMyself) {
+        next();
+    }
+    //Sino, en este caso la accion esta prohibida
+    else {
+        console.log('Prohibited route: it is not the logged user');
+        res.send(403);
+    } 
+}

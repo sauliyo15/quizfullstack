@@ -64,14 +64,34 @@ router.param('quizId', quizController.load);
 //Autoload para las rutas que usen un parametro :userId, se benefician de este metodo los controladores cuya ruta contenga el userId
 router.param('userId', userController.load);
 
-//Rutas para el CRUD de los quizzes - HTML solo GET y POST  --> Method Override para gestionar PUT y DELETE
+//Rutas para el CRUD de los quizzes 
+//HTML solo GET y POST  --> Method Override para gestionar PUT y DELETE
+//Aplicamos los permisos con MWs en serie (verificacion de login, etc Ver tabla de permisos)
 router.get('/quizzes', quizController.index);
-router.get('/quizzes/:quizId(\\d+)', quizController.show);
-router.get('/quizzes/new', quizController.new);
-router.post('/quizzes', quizController.create);
-router.get('/quizzes/:quizId(\\d+)/edit', quizController.edit);
-router.put('/quizzes/:quizId(\\d+)', quizController.update);
-router.delete('/quizzes/:quizId(\\d+)', quizController.destroy);
+
+router.get('/quizzes/:quizId(\\d+)',
+  sessionController.loginRequired, 
+  quizController.show);
+
+router.get('/quizzes/new',
+  sessionController.loginRequired,
+   quizController.new);
+
+router.post('/quizzes',
+  sessionController.loginRequired,
+  quizController.create);
+
+router.get('/quizzes/:quizId(\\d+)/edit',
+  sessionController.loginRequired, 
+  quizController.edit);
+
+router.put('/quizzes/:quizId(\\d+)', 
+  sessionController.loginRequired, 
+  quizController.update);
+
+router.delete('/quizzes/:quizId(\\d+)', 
+  sessionController.loginRequired,
+  quizController.destroy);
 
 //Rutas para jugar con los quizzes
 router.get('/quizzes/:quizId(\\d+)/play', quizController.play);
@@ -81,13 +101,36 @@ router.get('/quizzes/:quizId(\\d+)/check', quizController.check);
 router.get('/quizzes/randomplay', quizController.randomPlay);
 router.get('/quizzes/randomcheck/:quizId(\\d+)', quizController.randomCheck);
 
-//Rutas para el CRUD de los users - HTML solo GET y POST  --> Method Override para gestionar PUT y DELETE
-router.get('/users', userController.index);
-router.get('/users/:userId(\\d+)', userController.show);
+
+//Rutas para el CRUD de los users 
+//HTML solo GET y POST  --> Method Override para gestionar PUT y DELETE
+//Aplicamos los permisos con MWs en serie (verificacion de login, usuario adminstrador, etc Ver tabla de permisos)
+router.get('/users', 
+  sessionController.loginRequired, 
+  userController.index);
+
+router.get('/users/:userId(\\d+)', 
+  sessionController.loginRequired, 
+  userController.show);
+
 router.get('/users/new', userController.new);
 router.post('/users', userController.create);
-router.get('/users/:userId(\\d+)/edit', userController.isLocalRequired, userController.edit);//Solo se puede editar el usuario si es local: comprobacion
-router.put('/users/:userId(\\d+)', userController.isLocalRequired, userController.update); //Solo se puede editar el usuario si es local: comprobacion
-router.delete('/users/:userId(\\d+)', userController.destroy);
+
+router.get('/users/:userId(\\d+)/edit', 
+  sessionController.loginRequired, 
+  userController.isLocalRequired,
+  sessionController.adminOrMyselfRequired, 
+  userController.edit);
+
+router.put('/users/:userId(\\d+)', 
+  sessionController.loginRequired,
+  userController.isLocalRequired,
+  sessionController.adminOrMyselfRequired, 
+  userController.update);
+
+router.delete('/users/:userId(\\d+)', 
+  sessionController.loginRequired, 
+  sessionController.adminOrMyselfRequired, 
+  userController.destroy);
 
 module.exports = router;
