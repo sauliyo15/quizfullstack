@@ -177,7 +177,7 @@ exports.authGitHubCB = GitHubStrategy && passport.authenticate(
 
 
 //MW que verifica que un usuario esta logueado en la pagina
-exports.loginRequired = async (req, res, next) => {
+exports.loginRequired = (req, res, next) => {
     //Si esta logueado se podra continuar con el siguiente MW
     if (req.loginUser) {
         next();
@@ -191,12 +191,28 @@ exports.loginRequired = async (req, res, next) => {
 
 
 //MW que verifica que el usuario logueado es administrador ó que el usuario logueado es el mismo sobre el cual se lanza la operacion
-exports.adminOrMyselfRequired = async (req, res, next) => {
+exports.adminOrMyselfRequired = (req, res, next) => {
     const isAdmin = !!req.loginUser.isAdmin;
     const isMyself = req.load.user.id === req.loginUser.id;
     
     //Si es el administrador o uno mismo se puede continuar
     if (isAdmin || isMyself) {
+        next();
+    }
+    //Sino, en este caso la accion esta prohibida
+    else {
+        console.log('Prohibited route: it is not the logged user');
+        res.send(403);
+    } 
+}
+
+
+//MW que verifica que el usuario logueado es administrador
+exports.adminRequired = (req, res, next) => {
+    const isAdmin = !!req.loginUser.isAdmin;
+    
+    //Si es el administrador
+    if (isAdmin) {
         next();
     }
     //Sino, en este caso la accion esta prohibida

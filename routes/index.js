@@ -113,8 +113,22 @@ router.get('/users/:userId(\\d+)',
   sessionController.loginRequired, 
   userController.show);
 
-router.get('/users/new', userController.new);
-router.post('/users', userController.create);
+//Incorporacion del registro libre de usuarios o no. Sino existe la variable, registro abierto  
+if (!process.env.QUIZ_OPEN_REGISTER) {
+  router.get('/users/new', userController.new);
+  router.post('/users', userController.create);
+} 
+//Si existe...restringimos el registro de usuarios a un usuario logueado y que sea administrador
+else {
+  router.get('/users/new', 
+    sessionController.loginRequired,
+    sessionController.adminRequired,
+    userController.new);
+  router.post('/users',
+    sessionController.loginRequired,
+    sessionController.adminRequired,
+    userController.create);
+} 
 
 router.get('/users/:userId(\\d+)/edit', 
   sessionController.loginRequired, 
