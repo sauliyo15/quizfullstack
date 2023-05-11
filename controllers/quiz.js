@@ -126,12 +126,15 @@ exports.create = async (req, res, next) => {
   //Obtenemos los parametros del body de la peticion
   const { question, answer } = req.body;
 
+  //Obtnemos de la peticion el id del usuario logueado, que será el author del quiz
+  const authorId = req.loginUser.id;
+
   //Construimos una instancia no persitente con el modelo Quiz
-  let quiz = models.Quiz.build({ question, answer});
+  let quiz = models.Quiz.build({ question, answer, authorId});
 
   try {
-    //Ejecutamos la sentencia en la base de datos (solo guardamos los dos campos)
-    quiz = await quiz.save({ fields: ["question", "answer"] });
+    //Ejecutamos la sentencia en la base de datos (solo guardamos los tres campos)
+    quiz = await quiz.save({ fields: ["question", "answer", "authorId"] });
 
     //Configuramos un mensaje flash para mostrarlo en la vista con el resultado exitoso de la operacion
     req.flash('success', 'Quiz created successfully');
