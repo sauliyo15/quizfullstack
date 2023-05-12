@@ -4,6 +4,7 @@ var router = express.Router();
 const quizController = require('../controllers/quiz');
 const userController = require('../controllers/user');
 const sessionController = require('../controllers/session');
+const groupController = require('../controllers/group');
 
 //MWs para manejar la gestión de Login y logout
 
@@ -40,7 +41,7 @@ function saveBack(req, res, next) {
 }
 
 //'Al volver atras', solo se podra volver atras a una de las siguientes rutas definidas
-router.get(['/', '/author', '/quizzes', '/users', '/users/:id(\\d+)/quizzes'], saveBack);
+router.get(['/', '/author', '/quizzes', '/users', '/users/:id(\\d+)/quizzes', '/groups'], saveBack);
 
 
 /* GET home page. */
@@ -63,6 +64,10 @@ router.param('quizId', quizController.load);
 
 //Autoload para las rutas que usen un parametro :userId, se benefician de este metodo los controladores cuya ruta contenga el userId
 router.param('userId', userController.load);
+
+//Autoload para las rutas que usen un parametro :groupId, se benefician de este metodo los controladores cuya ruta contenga el groupId
+router.param('groupId', groupController.load);
+
 
 //Rutas para el CRUD de los quizzes 
 //HTML solo GET y POST  --> Method Override para gestionar PUT y DELETE
@@ -153,6 +158,19 @@ router.delete('/users/:userId(\\d+)',
   
 router.get('/users/:userId(\\d+)/quizzes', 
   sessionController.loginRequired, 
-  quizController.index);  
+  quizController.index);
+
+//Rutas para el CRUD de los grupos 
+//HTML solo GET y POST  --> Method Override para gestionar PUT y DELETE 
+router.get('/groups', groupController.index);
+router.get('/groups/new', groupController.new);
+router.post('/groups', groupController.create);
+router.get('/groups/:groupId(\\d+)/edit', groupController.edit);
+router.put('/groups/:groupId(\\d+)', groupController.update);
+router.delete('/groups/:groupId(\\d+)', groupController.destroy);
+
+//Rutas para jugar de forma aleatoria con los grupos
+router.get('/groups/:groupId(\\d+)/randomplay',  groupController.randomPlay);
+router.get('/groups/:groupId(\\d+)/randomcheck/:quizId(\\d+)', groupController.randomCheck);
 
 module.exports = router;
