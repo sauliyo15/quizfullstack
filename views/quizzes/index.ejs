@@ -4,7 +4,7 @@
         <input type="submit" value="Search">
     </form>
 </div>
-<h1>Quizzes:</h1>
+<h1><%= title || "Quizzes" %>:</h1>
 <table>
     <% for (var i in quizzes) { %>
         <% var quiz = quizzes[i]; %>

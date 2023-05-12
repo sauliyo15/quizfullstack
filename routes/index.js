@@ -40,7 +40,7 @@ function saveBack(req, res, next) {
 }
 
 //'Al volver atras', solo se podra volver atras a una de las siguientes rutas definidas
-router.get(['/', '/author', '/quizzes', '/users'], saveBack);
+router.get(['/', '/author', '/quizzes', '/users', '/users/:id(\\d+)/quizzes'], saveBack);
 
 
 /* GET home page. */
@@ -150,5 +150,9 @@ router.delete('/users/:userId(\\d+)',
   sessionController.loginRequired, 
   sessionController.adminOrMyselfRequired, 
   userController.destroy);
+  
+router.get('/users/:userId(\\d+)/quizzes', 
+  sessionController.loginRequired, 
+  quizController.index);  
 
 module.exports = router;

@@ -32,8 +32,11 @@ exports.show = (req, res, next) => {
 exports.index = async (req, res, next) => {
   
   //Definir opciones de busqueda si llegan en la query en el parametro search
-  let countOptions = {};
-  let findOptions = {};
+  let countOptions = {where: {}};
+  let findOptions = {where: {}};
+
+  //Definimos el titulo que se enviara a la vista
+  let title = "Quizzes";
 
   // Search:
   const search = req.query.search || "";
@@ -42,6 +45,19 @@ exports.index = async (req, res, next) => {
 
     countOptions.where = { question: { [Op.like]: search_like } };
     findOptions.where = { question: { [Op.like]: search_like } };
+  }
+
+  //Para cargar solo las preguntas del usuario logueado, se habra cargado el usuario con su autoload al acceder a MisQuizzes
+  if (req.load && req.load.user) {
+    countOptions.where.authorId = req.load.user.id;
+    findOptions.where.authorId = req.load.user.id;
+
+    if (req.loginUser && req.loginUser.id == req.load.user.id) {
+      title = "My Quizzes";
+    }
+    else {
+      title = "Quizzes of " + req.load.user.username;
+    }
   }
 
   try {
@@ -71,7 +87,7 @@ exports.index = async (req, res, next) => {
 
     //Llamamos a la base de datos con las opciones establecidas
     const quizzes = await models.Quiz.findAll(findOptions);
-    res.render("quizzes/index.ejs", { quizzes, search });
+    res.render("quizzes/index.ejs", { quizzes, search, title });
     
   } catch (error) {
     next(error);
