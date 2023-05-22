@@ -161,13 +161,34 @@ router.get('/users/:userId(\\d+)/quizzes',
   quizController.index);
 
 //Rutas para el CRUD de los grupos 
-//HTML solo GET y POST  --> Method Override para gestionar PUT y DELETE 
+//HTML solo GET y POST  --> Method Override para gestionar PUT y DELETE
+//Aplicamos los permisos con MWs en serie (verificacion de login, usuario adminstrador, etc Ver tabla de permisos)
 router.get('/groups', groupController.index);
-router.get('/groups/new', groupController.new);
-router.post('/groups', groupController.create);
-router.get('/groups/:groupId(\\d+)/edit', groupController.edit);
-router.put('/groups/:groupId(\\d+)', groupController.update);
-router.delete('/groups/:groupId(\\d+)', groupController.destroy);
+
+router.get('/groups/new',
+  sessionController.loginRequired,
+  sessionController.adminRequired,
+  groupController.new);
+
+router.post('/groups',
+  sessionController.loginRequired,
+  sessionController.adminRequired,
+  groupController.create);
+
+router.get('/groups/:groupId(\\d+)/edit', 
+  sessionController.loginRequired,
+  sessionController.adminRequired,
+  groupController.edit);
+
+router.put('/groups/:groupId(\\d+)', 
+  sessionController.loginRequired,
+  sessionController.adminRequired,
+  groupController.update);
+
+router.delete('/groups/:groupId(\\d+)', 
+  sessionController.loginRequired,
+  sessionController.adminRequired,
+  groupController.destroy);
 
 //Rutas para jugar de forma aleatoria con los grupos
 router.get('/groups/:groupId(\\d+)/randomplay',  groupController.randomPlay);
